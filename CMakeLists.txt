@@ -3,11 +3,11 @@ cmake_minimum_required( VERSION 2.8.8 )
 
 project(freetype2)
 
-option(FREETYPE_BUILD_SHARED OFF "Build shared library.")
-option(FREETYPE_BUILD_STATIC ON "Build static library.")
-option(FREETYPE_USE_ZLIB ON "Use external zlib library for decompression.")
-option(FREETYPE_USE_BZIP2 ON "Use external bzip2 library for decompression.")
-option(FREETYPE_USE_CID OFF "Use CID Font.")
+option(FREETYPE_BUILD_SHARED "Build shared library." OFF)
+option(FREETYPE_BUILD_STATIC "Build static library." ON)
+option(FREETYPE_USE_ZLIB "Use external zlib library for decompression." ON)
+option(FREETYPE_USE_BZIP2 "Use external bzip2 library for decompression." ON)
+option(FREETYPE_USE_CID "Use CID Font." OFF)
 
 if(NOT FREETYPE_BUILD_STATIC AND NOT FREETYPE_BUILD_SHARED)
   message(FATAL_ERROR "C'mon you must build *one* of the libraries.")

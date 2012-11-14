@@ -1,7 +1,7 @@
 
 cmake_minimum_required( VERSION 2.8.8 )
 
-project(freetype2)
+project(freetype)
 
 option(FREETYPE_BUILD_SHARED "Build shared library." OFF)
 option(FREETYPE_BUILD_STATIC "Build static library." ON)
@@ -15,13 +15,20 @@ endif()
 
 if(FREETYPE_USE_ZLIB)
   find_package(ZLIB REQUIRED)
-  add_definitions(-DFT_CONFIG_OPTION_USE_ZLIB -DFT_CONFIG_OPTION_SYSTEM_ZLIB)
+  set(FT_CONFIG_OPTION_USE_ZLIB TRUE)
+  set(FT_CONFIG_OPTION_SYSTEM_ZLIB TRUE)
+  set(FT_CONFIG_OPTION_USE_LZW TRUE)
 endif()
 
 if(FREETYPE_USE_BZIP2)
   find_package(BZip2 REQUIRED)
-  add_definitions(-DFT_CONFIG_OPTION_USE_BZIP2)
+  set(FT_CONFIG_OPTION_USE_BZIP2 TRUE)
 endif()
+
+set(FTOPTION_HDR ${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config/ftoption.h)
+configure_file(include/freetype/config/ftoption.h.in
+  ${FTOPTION_HDR}
+)
 
 set(LIB_SRCS
   src/autofit/autofit.c
@@ -154,8 +161,8 @@ set(LIB_CONFIG_HDRS
   include/freetype/config/ftconfig.h
   include/freetype/config/ftheader.h
   include/freetype/config/ftmodule.h
-  include/freetype/config/ftoption.h
   include/freetype/config/ftstdlib.h
+  ${FTOPTION_HDR}
 )
 
 if(FREETYPE_USE_ZLIB)
@@ -172,7 +179,10 @@ if(FREETYPE_USE_CID)
   set(LIB_HDRS ${LIB_HDRS} include/freetype/ftcid.h)
 endif()
 
-if(WIN32)
+if(LINUX AND ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+  set_source_files_properties(${LIB_SRCS}
+    PROPERTIES COMPILE_FLAGS "-fPIC")
+elseif(WIN32)
   set(LIB_SRCS ${LIB_SRCS} src/win32/ftdebug.c)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
   add_subdirectory(src/tools)
@@ -195,7 +205,7 @@ elseif(BORLAND)
 endif()
 add_definitions(-DFT2_BUILD_LIBRARY)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${ZLIB_INCLUDE_DIRS} ${BZIP2_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include ${ZLIB_INCLUDE_DIRS} ${BZIP2_INCLUDE_DIRS})
 
 set(TARGETS)
 set(LIB_NAME freetype)
@@ -227,3 +237,6 @@ install(FILES ${LIB_CONFIG_HDRS}
   DESTINATION include/freetype2/freetype/config
 )
 
+install(FILES ${LIB_BUILD_HDRS}
+  DESTINATION include
+)

@@ -179,7 +179,7 @@ if(FREETYPE_USE_CID)
   set(LIB_HDRS ${LIB_HDRS} include/freetype/ftcid.h)
 endif()
 
-if(LINUX AND ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+if(UNIX AND ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
   set_source_files_properties(${LIB_SRCS}
     PROPERTIES COMPILE_FLAGS "-fPIC")
 elseif(WIN32)
